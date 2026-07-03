@@ -276,9 +276,10 @@ export default function DashboardScreen() {
       <ReportModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        onSuccess={() => {
-          console.log('[Dashboard] Report submitted successfully, refreshing feed');
-          fetchReports();
+        onSuccess={(newReport) => {
+          console.log('[Dashboard] Mock report received, prepending to feed:', newReport.id);
+          setReports((prev) => [newReport, ...prev]);
+          setActiveTab('feed');
         }}
       />
     </View>

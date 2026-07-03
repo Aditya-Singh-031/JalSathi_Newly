@@ -18,8 +18,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/Colors';
 import { GlassCard } from '@/components/GlassCard';
-import { apiPost } from '@/utils/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { HazardReport } from '@/types';
 
 
 const CATEGORIES = [
@@ -42,7 +41,7 @@ const SEV_COLORS = [
 interface ReportModalProps {
   visible: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (newReport: HazardReport) => void;
 }
 
 export function ReportModal({ visible, onClose, onSuccess }: ReportModalProps) {
@@ -82,22 +81,20 @@ export function ReportModal({ visible, onClose, onSuccess }: ReportModalProps) {
     if (!category) return;
     setSubmitting(true);
     try {
-      const storedLoc = await AsyncStorage.getItem('user_location');
-      let lat = 19.076;
-      let lng = 72.8777;
-      if (storedLoc) {
-        const coords = JSON.parse(storedLoc);
-        lat = coords.latitude ?? lat;
-        lng = coords.longitude ?? lng;
-      }
-      await apiPost('/api/hazard-reports', {
+      await new Promise<void>((r) => setTimeout(r, 1000));
+      const mockReport: HazardReport = {
+        id: `mock-${Date.now()}`,
         user_id: 'demo-user-1',
-        category,
+        category: category as HazardReport['category'],
         severity_level: severity,
-        description,
-        latitude: lat,
-        longitude: lng,
-      });
+        description: description || 'Community report',
+        image_url: undefined,
+        latitude: 19.076,
+        longitude: 72.8777,
+        upvotes_count: 0,
+        timestamp: new Date().toISOString(),
+      };
+      console.log('[ReportModal] Mock report built:', mockReport);
       // Ripple animation
       rippleScale.setValue(0);
       rippleOpacity.setValue(1);
@@ -113,13 +110,10 @@ export function ReportModal({ visible, onClose, onSuccess }: ReportModalProps) {
           useNativeDriver: true,
         }),
       ]).start(() => {
+        onSuccess(mockReport);
         resetModal();
-        onSuccess();
         onClose();
       });
-    } catch (err) {
-      console.error('[ReportModal] Submit failed:', err);
-      Alert.alert('Error', 'Failed to submit report. Please try again.');
     } finally {
       setSubmitting(false);
     }
