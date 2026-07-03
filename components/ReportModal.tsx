@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -6,14 +6,13 @@ import {
   TouchableOpacity,
   TextInput,
   Animated,
-  PanResponder,
   Alert,
   ScrollView,
   StyleSheet,
-  Dimensions,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import * as Haptics from 'expo-haptics';
@@ -22,9 +21,6 @@ import { GlassCard } from '@/components/GlassCard';
 import { apiPost } from '@/utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const SLIDER_WIDTH = SCREEN_WIDTH - 80;
-const THUMB_SIZE = 28;
 
 const CATEGORIES = [
   { label: 'Flooding', icon: 'waves', color: '#38BDF8' },
@@ -42,7 +38,6 @@ const SEV_COLORS = [
   Colors.sev4,
   Colors.sev5,
 ];
-const SEV_TRACK_COLORS = [Colors.sev1, Colors.sev2, Colors.sev3, Colors.sev4, Colors.sev5];
 
 interface ReportModalProps {
   visible: boolean;
@@ -61,43 +56,7 @@ export function ReportModal({ visible, onClose, onSuccess }: ReportModalProps) {
   const rippleScale = useRef(new Animated.Value(0)).current;
   const rippleOpacity = useRef(new Animated.Value(0)).current;
 
-  // Slider
-  const sliderX = useRef(new Animated.Value(((severity - 1) / 4) * (SLIDER_WIDTH - THUMB_SIZE))).current;
-  const currentSeverity = useRef(severity);
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, gestureState) => {
-        const trackWidth = SLIDER_WIDTH - THUMB_SIZE;
-        const rawX = ((currentSeverity.current - 1) / 4) * trackWidth + gestureState.dx;
-        const clampedX = Math.max(0, Math.min(trackWidth, rawX));
-        sliderX.setValue(clampedX);
-        const newSev = Math.round((clampedX / trackWidth) * 4) + 1;
-        if (newSev !== currentSeverity.current) {
-          currentSeverity.current = newSev;
-          setSeverity(newSev);
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        const trackWidth = SLIDER_WIDTH - THUMB_SIZE;
-        const rawX = ((currentSeverity.current - 1) / 4) * trackWidth + gestureState.dx;
-        const clampedX = Math.max(0, Math.min(trackWidth, rawX));
-        const snappedSev = Math.round((clampedX / trackWidth) * 4) + 1;
-        const snappedX = ((snappedSev - 1) / 4) * trackWidth;
-        Animated.spring(sliderX, {
-          toValue: snappedX,
-          useNativeDriver: false,
-          speed: 30,
-          bounciness: 4,
-        }).start();
-        currentSeverity.current = snappedSev;
-        setSeverity(snappedSev);
-      },
-    })
-  ).current;
 
   const handleCategorySelect = (label: string, index: number) => {
     console.log(`[ReportModal] Category selected: ${label}`);
@@ -171,8 +130,6 @@ export function ReportModal({ visible, onClose, onSuccess }: ReportModalProps) {
     setCategory(null);
     setSeverity(3);
     setDescription('');
-    sliderX.setValue(((3 - 1) / 4) * (SLIDER_WIDTH - THUMB_SIZE));
-    currentSeverity.current = 3;
   };
 
   const handleClose = () => {
@@ -284,28 +241,22 @@ export function ReportModal({ visible, onClose, onSuccess }: ReportModalProps) {
                     </Text>
                   </View>
 
-                  {/* Slider track */}
-                  <View style={styles.sliderContainer}>
-                    <View style={styles.sliderTrack}>
-                      {SEV_TRACK_COLORS.map((c, i) => (
-                        <View
-                          key={i}
-                          style={{
-                            flex: 1,
-                            backgroundColor: c,
-                            borderRadius: i === 0 ? 4 : i === 4 ? 4 : 0,
-                          }}
-                        />
-                      ))}
-                    </View>
-                    <Animated.View
-                      style={[
-                        styles.sliderThumb,
-                        { transform: [{ translateX: sliderX }] },
-                      ]}
-                      {...panResponder.panHandlers}
-                    />
-                  </View>
+                  {/* Slider */}
+                  <Slider
+                    style={{ width: '100%', marginBottom: 32 }}
+                    minimumValue={1}
+                    maximumValue={5}
+                    step={1}
+                    value={severity}
+                    onValueChange={(v) => {
+                      console.log(`[ReportModal] Severity slider changed: ${v}`);
+                      setSeverity(v);
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }}
+                    minimumTrackTintColor={sevColor}
+                    maximumTrackTintColor="#334155"
+                    thumbTintColor="#ffffff"
+                  />
 
                   <View style={styles.rowButtons}>
                     <TouchableOpacity
@@ -469,27 +420,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     textAlign: 'center',
-  },
-  sliderContainer: {
-    width: SLIDER_WIDTH,
-    alignSelf: 'center',
-    marginBottom: 32,
-    position: 'relative',
-  },
-  sliderTrack: {
-    flexDirection: 'row',
-    height: 8,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  sliderThumb: {
-    position: 'absolute',
-    top: -(THUMB_SIZE / 2 - 4),
-    width: THUMB_SIZE,
-    height: THUMB_SIZE,
-    borderRadius: THUMB_SIZE / 2,
-    backgroundColor: '#fff',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
   },
   rowButtons: {
     flexDirection: 'row',
