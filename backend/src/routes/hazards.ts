@@ -85,13 +85,13 @@ export function register(app: App, fastify: FastifyInstance) {
       tags: ['hazards'],
       body: {
         type: 'object',
-        required: ['userId', 'category', 'severityLevel', 'latitude', 'longitude'],
+        required: ['user_id', 'category', 'severity_level', 'latitude', 'longitude'],
         properties: {
-          userId: { type: 'string' },
+          user_id: { type: 'string' },
           category: { type: 'string', enum: ['Flooding', 'Open Pothole', 'Power Grid Down', 'Fallen Tree'] },
-          severityLevel: { type: 'integer', minimum: 1, maximum: 5 },
+          severity_level: { type: 'integer', minimum: 1, maximum: 5 },
           description: { type: 'string', nullable: true },
-          imageUrl: { type: 'string', nullable: true },
+          image_url: { type: 'string', nullable: true },
           latitude: { type: 'number' },
           longitude: { type: 'number' },
         },
@@ -115,16 +115,16 @@ export function register(app: App, fastify: FastifyInstance) {
         },
       },
     },
-  }, async (request: FastifyRequest<{ Body: { userId: string; category: string; severityLevel: number; description?: string; imageUrl?: string; latitude: number; longitude: number } }>, reply: FastifyReply) => {
-    app.logger.info({ userId: request.body.userId, category: request.body.category }, 'Creating hazard report');
+  }, async (request: FastifyRequest<{ Body: { user_id: string; category: string; severity_level: number; description?: string; image_url?: string; latitude: number; longitude: number } }>, reply: FastifyReply) => {
+    app.logger.info({ user_id: request.body.user_id, category: request.body.category }, 'Creating hazard report');
 
     const [created] = await app.db.insert(schema.hazardReports).values({
       id: uuidv4(),
-      userId: request.body.userId,
+      userId: request.body.user_id,
       category: request.body.category as any,
-      severityLevel: request.body.severityLevel,
+      severityLevel: request.body.severity_level,
       description: request.body.description,
-      imageUrl: request.body.imageUrl,
+      imageUrl: request.body.image_url,
       latitude: request.body.latitude,
       longitude: request.body.longitude,
     }).returning();
