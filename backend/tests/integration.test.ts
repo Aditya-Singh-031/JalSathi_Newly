@@ -94,9 +94,9 @@ describe("API Integration Tests", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: userId,
+          user_id: userId,
           category: "Flooding",
-          severityLevel: 3,
+          severity_level: 3,
           latitude: 40.7128,
           longitude: -74.006,
         }),
@@ -119,11 +119,11 @@ describe("API Integration Tests", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: userId,
+          user_id: userId,
           category: "Open Pothole",
-          severityLevel: 2,
+          severity_level: 2,
           description: "Large pothole in the road",
-          imageUrl: "https://example.com/image.jpg",
+          image_url: "https://example.com/image.jpg",
           latitude: 40.758,
           longitude: -73.9855,
         }),
@@ -142,9 +142,9 @@ describe("API Integration Tests", () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            userId: userId,
+            user_id: userId,
             category: category,
-            severityLevel: 4,
+            severity_level: 4,
             latitude: 40.7128,
             longitude: -74.006,
           }),
@@ -185,13 +185,13 @@ describe("API Integration Tests", () => {
       expect(data.reports).toBeDefined();
     });
 
-    test("Reject hazard report without required userId", async () => {
+    test("Reject hazard report without required user_id", async () => {
       const res = await api("/api/hazard-reports", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           category: "Flooding",
-          severityLevel: 3,
+          severity_level: 3,
           latitude: 40.7128,
           longitude: -74.006,
         }),
@@ -204,8 +204,8 @@ describe("API Integration Tests", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: userId,
-          severityLevel: 3,
+          user_id: userId,
+          severity_level: 3,
           latitude: 40.7128,
           longitude: -74.006,
         }),
@@ -213,12 +213,12 @@ describe("API Integration Tests", () => {
       await expectStatus(res, 400);
     });
 
-    test("Reject hazard report without required severityLevel", async () => {
+    test("Reject hazard report without required severity_level", async () => {
       const res = await api("/api/hazard-reports", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: userId,
+          user_id: userId,
           category: "Flooding",
           latitude: 40.7128,
           longitude: -74.006,
@@ -232,9 +232,9 @@ describe("API Integration Tests", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: userId,
+          user_id: userId,
           category: "Flooding",
-          severityLevel: 3,
+          severity_level: 3,
           longitude: -74.006,
         }),
       });
@@ -246,9 +246,9 @@ describe("API Integration Tests", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: userId,
+          user_id: userId,
           category: "Flooding",
-          severityLevel: 3,
+          severity_level: 3,
           latitude: 40.7128,
         }),
       });
@@ -260,9 +260,9 @@ describe("API Integration Tests", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: userId,
+          user_id: userId,
           category: "Invalid Category",
-          severityLevel: 3,
+          severity_level: 3,
           latitude: 40.7128,
           longitude: -74.006,
         }),
@@ -275,9 +275,9 @@ describe("API Integration Tests", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: userId,
+          user_id: userId,
           category: "Flooding",
-          severityLevel: 0,
+          severity_level: 0,
           latitude: 40.7128,
           longitude: -74.006,
         }),
@@ -290,9 +290,9 @@ describe("API Integration Tests", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: userId,
+          user_id: userId,
           category: "Flooding",
-          severityLevel: 6,
+          severity_level: 6,
           latitude: 40.7128,
           longitude: -74.006,
         }),
@@ -344,8 +344,8 @@ describe("API Integration Tests", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: userId,
-          requestType: "Medical Emergency",
+          user_id: userId,
+          request_type: "Medical Emergency",
           message: "Need urgent medical assistance",
         }),
       });
@@ -367,8 +367,8 @@ describe("API Integration Tests", () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            userId: userId,
-            requestType: type,
+            user_id: userId,
+            request_type: type,
             message: `Request for ${type}`,
           }),
         });
@@ -389,24 +389,24 @@ describe("API Integration Tests", () => {
       expect(data.requests.length).toBeGreaterThan(0);
     });
 
-    test("Reject SOS request without required userId", async () => {
+    test("Reject SOS request without required user_id", async () => {
       const res = await api("/api/sos-requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          requestType: "Medical Emergency",
+          request_type: "Medical Emergency",
           message: "Help needed",
         }),
       });
       await expectStatus(res, 400);
     });
 
-    test("Reject SOS request without required requestType", async () => {
+    test("Reject SOS request without required request_type", async () => {
       const res = await api("/api/sos-requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: userId,
+          user_id: userId,
           message: "Help needed",
         }),
       });
@@ -418,8 +418,8 @@ describe("API Integration Tests", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: userId,
-          requestType: "Medical Emergency",
+          user_id: userId,
+          request_type: "Medical Emergency",
         }),
       });
       await expectStatus(res, 400);
@@ -464,8 +464,8 @@ describe("API Integration Tests", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: userId,
-          requestType: "Fire",
+          user_id: userId,
+          request_type: "Fire",
           message: "House fire",
         }),
       });

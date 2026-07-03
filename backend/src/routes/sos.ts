@@ -50,10 +50,10 @@ export function register(app: App, fastify: FastifyInstance) {
       tags: ['sos'],
       body: {
         type: 'object',
-        required: ['userId', 'requestType', 'message'],
+        required: ['user_id', 'request_type', 'message'],
         properties: {
-          userId: { type: 'string' },
-          requestType: { type: 'string' },
+          user_id: { type: 'string' },
+          request_type: { type: 'string' },
           message: { type: 'string' },
         },
       },
@@ -72,13 +72,13 @@ export function register(app: App, fastify: FastifyInstance) {
         },
       },
     },
-  }, async (request: FastifyRequest<{ Body: { userId: string; requestType: string; message: string } }>, reply: FastifyReply) => {
-    app.logger.info({ userId: request.body.userId, type: request.body.requestType }, 'Creating SOS request');
+  }, async (request: FastifyRequest<{ Body: { user_id: string; request_type: string; message: string } }>, reply: FastifyReply) => {
+    app.logger.info({ user_id: request.body.user_id, type: request.body.request_type }, 'Creating SOS request');
 
     const [created] = await app.db.insert(schema.sosRequests).values({
       id: uuidv4(),
-      userId: request.body.userId,
-      requestType: request.body.requestType,
+      userId: request.body.user_id,
+      requestType: request.body.request_type,
       message: request.body.message,
       status: 'Open',
     }).returning();
